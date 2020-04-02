@@ -1,11 +1,10 @@
 package ru.com.sev.sbulygin.sqlcmd.controller;
 
 /**
- * Class Main.
- *
- * @author anonymous.
- * @version 1.0.
- * @since 31.01.19.
+ * Class   Main
+ * Created 02/04/2020 - 22:24
+ * Project SQLCmd
+ * Author  Sergey Bulygin
  */
 public class Main {
 }
