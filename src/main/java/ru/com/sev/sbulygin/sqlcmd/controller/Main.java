@@ -1,6 +1,7 @@
 package ru.com.sev.sbulygin.sqlcmd.controller;
 
 import java.sql.*;
+import java.util.Random;
 
 /**
  * Class   Main
@@ -28,10 +29,24 @@ public class Main {
             System.out.println("name:" + rs.getString("name"));
             System.out.println("password:" + rs.getString("password"));
             System.out.println("----------");
-
         }
         rs.close();
         stmt.close();
+
+        //delete
+        stmt = connection.createStatement();
+        stmt.executeUpdate("DELETE FROM public.users " +
+                "WHERE id > 5 AND ID < 100");
+        stmt.close();
+
+        //update
+        PreparedStatement ps = connection.prepareStatement(
+                "UPDATE public.users SET password = ? WHERE id > 3");
+        String pass = "password_" + new Random().nextInt();
+        ps.setString(1, pass);
+        ps.executeUpdate();
+        ps.close();
+
         connection.close();
     }
 }
