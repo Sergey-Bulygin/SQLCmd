@@ -17,13 +17,13 @@ public class Main {
         }
         //insert
         Statement stmt = connection.createStatement();
-        stmt.executeUpdate("INSERT INTO public.users (name, password)" +
+        stmt.executeUpdate("INSERT INTO users (name, password)" +
                 "VALUES ('Ivan', 'Budko')");
         stmt.close();
 
         //select
         stmt = connection.createStatement();
-        ResultSet rs = stmt.executeQuery("SELECT * FROM public.users WHERE id > 5");
+        ResultSet rs = stmt.executeQuery("SELECT * FROM users WHERE id > 5");
         while (rs.next()) {
             System.out.println("id:" + rs.getString("id"));
             System.out.println("name:" + rs.getString("name"));
@@ -35,17 +35,27 @@ public class Main {
 
         //delete
         stmt = connection.createStatement();
-        stmt.executeUpdate("DELETE FROM public.users " +
+        stmt.executeUpdate("DELETE FROM users " +
                 "WHERE id > 5 AND ID < 100");
         stmt.close();
 
         //update
         PreparedStatement ps = connection.prepareStatement(
-                "UPDATE public.users SET password = ? WHERE id > 3");
+                "UPDATE users SET password = ? WHERE id > 3");
         String pass = "password_" + new Random().nextInt();
         ps.setString(1, pass);
         ps.executeUpdate();
         ps.close();
+
+        // table names
+        stmt = connection.createStatement();
+        rs = stmt.executeQuery("SELECT table_name FROM information_schema.tables WHERE table_schema='public' " +
+                "AND table_type='BASE TABLE'");
+        while (rs.next()) {
+            System.out.println(rs.getString("table_name"));
+        }
+        rs.close();
+        stmt.close();
 
         connection.close();
     }
