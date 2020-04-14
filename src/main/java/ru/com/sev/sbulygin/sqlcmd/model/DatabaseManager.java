@@ -11,11 +11,17 @@ import java.util.Random;
  * Author  Sergey Bulygin
  */
 public class DatabaseManager {
+
+    private Connection connection;
+
     public static void main(String[] args) throws SQLException, ClassNotFoundException {
-        Class.forName("org.postgresql.Driver");
-        Connection connection = DriverManager.getConnection(
-                "jdbc:postgresql://127.0.0.1:5432/sqlcmd", "postgres", "bbfd50ago"); {
-        }
+        String database = "sqlcmd";
+        String user = "postgres";
+        String password = "bbfd50ago";
+        DatabaseManager manager = new DatabaseManager();
+        manager.connect(database, user, password);
+        Connection connection = manager.getConnection();
+
         //insert
         Statement stmt = connection.createStatement();
         stmt.executeUpdate("INSERT INTO users (name, password)" +
@@ -24,7 +30,8 @@ public class DatabaseManager {
 
         //select
         stmt = connection.createStatement();
-        ResultSet rs = stmt.executeQuery("SELECT * FROM users WHERE id > 5");
+        String tableName = "users";
+        ResultSet rs = stmt.executeQuery("SELECT * FROM " + tableName);
         while (rs.next()) {
             System.out.println("id:" + rs.getString("id"));
             System.out.println("name:" + rs.getString("name"));
@@ -35,15 +42,8 @@ public class DatabaseManager {
         stmt.close();
 
         // table names
-        stmt = connection.createStatement();
-        rs = stmt.executeQuery("SELECT table_name FROM information_schema.tables WHERE table_schema='public' " +
-                "AND table_type='BASE TABLE'");
-        String[] table = new String[100];
-        int index = 0;
-        while (rs.next()) {
-            table[index++] = rs.getString("table_name");
-        }
-        table = Arrays.copyOf(table, index + 1, String[].class);
+        String[] tables = manager.getTableNames();
+        System.out.println(Arrays.toString(tables));
 
         //delete
         stmt = connection.createStatement();
@@ -63,5 +63,47 @@ public class DatabaseManager {
         stmt.close();
 
         connection.close();
+    }
+
+    public String[] getTableNames() {
+        try {
+            Statement stmt = connection.createStatement();
+            ResultSet rs = stmt.executeQuery("SELECT table_name FROM information_schema.tables WHERE table_schema='public' AND table_type='BASE TABLE'");
+            String[] tables = new String[100];
+            int index = 0;
+            while (rs.next()) {
+                tables[index++] = rs.getString("table_name");
+            }
+            tables = Arrays.copyOf(tables, index, String[].class);
+            rs.close();
+            stmt.close();
+            return tables;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return new String[0];
+        }
+    }
+
+    private Connection getConnection() {
+        return connection;
+    }
+
+    public void connect(String database,
+                                            String user,
+                                            String password) {
+            try {
+                Class.forName("org.postgresql.Driver");
+            } catch (ClassNotFoundException e) {
+                System.out.println("Please add jdbc jar to project.");
+                e.printStackTrace();
+            }
+        try {
+            connection = DriverManager.getConnection(
+                    "jdbc:postgresql://127.0.0.1:5432/" + database, user, password);
+        } catch (SQLException e) {
+            System.out.println(String.format("Can't get connection for database:%s user:%s.", database, user));
+            e.printStackTrace();
+            connection = null;
+        }
     }
 }
