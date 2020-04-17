@@ -14,61 +14,11 @@ public class DatabaseManager {
 
     private Connection connection;
 
-    public static void main(String[] args) throws SQLException, ClassNotFoundException {
-        String database = "sqlcmd";
-        String user = "postgres";
-        String password = "bbfd50ago";
-        DatabaseManager manager = new DatabaseManager();
-        manager.connect(database, user, password);
-        Connection connection = manager.getConnection();
-
-        //insert
-        Statement stmt = connection.createStatement();
-        stmt.executeUpdate("INSERT INTO users (name, password)" +
-                "VALUES ('Ivan', 'Budko')");
-        stmt.close();
-
-        //select
-        stmt = connection.createStatement();
-        String tableName = "users";
-        ResultSet rs = stmt.executeQuery("SELECT * FROM " + tableName);
-        while (rs.next()) {
-            System.out.println("id:" + rs.getString("id"));
-            System.out.println("name:" + rs.getString("name"));
-            System.out.println("password:" + rs.getString("password"));
-            System.out.println("----------");
-        }
-        rs.close();
-        stmt.close();
-
-        // table names
-        String[] tables = manager.getTableNames();
-        System.out.println(Arrays.toString(tables));
-
-        //delete
-        stmt = connection.createStatement();
-        stmt.executeUpdate("DELETE FROM users " +
-                "WHERE id > 5 AND ID < 100");
-        stmt.close();
-
-        //update
-        PreparedStatement ps = connection.prepareStatement(
-                "UPDATE users SET password = ? WHERE id > 3");
-        String pass = "password_" + new Random().nextInt();
-        ps.setString(1, pass);
-        ps.executeUpdate();
-        ps.close();
-
-        rs.close();
-        stmt.close();
-
-        connection.close();
-    }
-
     public String[] getTableNames() {
         try {
             Statement stmt = connection.createStatement();
-            ResultSet rs = stmt.executeQuery("SELECT table_name FROM information_schema.tables WHERE table_schema='public' AND table_type='BASE TABLE'");
+            ResultSet rs = stmt.executeQuery(String.format("SELECT table_name FROM information_schema.tables " +
+                                                           "WHERE table_schema='public' AND table_type='BASE TABLE'"));
             String[] tables = new String[100];
             int index = 0;
             while (rs.next()) {
@@ -89,14 +39,14 @@ public class DatabaseManager {
     }
 
     public void connect(String database,
-                                            String user,
-                                            String password) {
-            try {
-                Class.forName("org.postgresql.Driver");
-            } catch (ClassNotFoundException e) {
-                System.out.println("Please add jdbc jar to project.");
-                e.printStackTrace();
-            }
+                        String user,
+                        String password) {
+        try {
+            Class.forName("org.postgresql.Driver");
+        } catch (ClassNotFoundException e) {
+            System.out.println("Please add jdbc jar to project.");
+            e.printStackTrace();
+        }
         try {
             connection = DriverManager.getConnection(
                     "jdbc:postgresql://127.0.0.1:5432/" + database, user, password);
@@ -106,4 +56,73 @@ public class DatabaseManager {
             connection = null;
         }
     }
+
+    public DataSet[] getTableData(String tableName) throws SQLException {
+        int size = getSize(tableName);
+        Statement stmt = connection.createStatement();
+        ResultSet rs = stmt.executeQuery(String.format("SELECT * FROM %s", tableName));
+        ResultSetMetaData rsmt = rs.getMetaData();
+        DataSet[] result = new DataSet[size];
+        int index = 0;
+        while (rs.next()) {
+            DataSet dataSet = new DataSet();
+            result[index++] = dataSet;
+            for (int i = 1; i <= rsmt.getColumnCount(); i++) {
+                dataSet.put(rsmt.getColumnName(i), rs.getObject(i));
+            }
+        }
+        rs.close();
+        stmt.close();
+        return result;
+    }
+
+    private int getSize(String tableName) throws SQLException {
+        Statement stmt = connection.createStatement();
+        ResultSet rsCount = stmt.executeQuery(String.format("SELECT COUNT(*) FROM %s", tableName));
+        rsCount.next();
+        int size = rsCount.getInt(1);
+        rsCount.close();
+        return size;
+    }
+
+
+    public static void main(String[] args) throws SQLException, ClassNotFoundException {
+        String database = "sqlcmd";
+        String user = "postgres";
+        String password = "bbfd50ago";
+        DatabaseManager manager = new DatabaseManager();
+        manager.connect(database, user, password);
+        Connection connection = manager.getConnection();
+
+        //insert
+        Statement stmt = connection.createStatement();
+        stmt.executeUpdate(String.format("INSERT INTO users (name, password)VALUES ('Ivan', 'Budko')"));
+        stmt.close();
+
+        //select
+        String[] tables = manager.getTableNames();
+        System.out.println(Arrays.toString(tables));
+        String tableName = "users";
+        DataSet[] result = manager.getTableData(tableName);
+        System.out.println(Arrays.toString(result));
+
+        //delete
+        stmt = connection.createStatement();
+        stmt.executeUpdate(String.format("DELETE FROM users WHERE id > 5 AND ID < 100"));
+        stmt.close();
+
+        //update
+        PreparedStatement ps = connection.prepareStatement(
+                "UPDATE users SET password = ? WHERE id > 3");
+        String pass = "password_" + new Random().nextInt();
+        ps.setString(1, pass);
+        ps.executeUpdate();
+        ps.close();
+
+        ps.close();
+        stmt.close();
+
+        connection.close();
+    }
+
 }
