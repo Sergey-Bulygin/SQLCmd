@@ -57,23 +57,28 @@ public class DatabaseManager {
         }
     }
 
-    public DataSet[] getTableData(String tableName) throws SQLException {
-        int size = getSize(tableName);
-        Statement stmt = connection.createStatement();
-        ResultSet rs = stmt.executeQuery(String.format("SELECT * FROM %s", tableName));
-        ResultSetMetaData rsmt = rs.getMetaData();
-        DataSet[] result = new DataSet[size];
-        int index = 0;
-        while (rs.next()) {
-            DataSet dataSet = new DataSet();
-            result[index++] = dataSet;
-            for (int i = 1; i <= rsmt.getColumnCount(); i++) {
-                dataSet.put(rsmt.getColumnName(i), rs.getObject(i));
+    public DataSet[] getTableData(String tableName) {
+        try {
+            int size = getSize(tableName);
+            Statement stmt = connection.createStatement();
+            ResultSet rs = stmt.executeQuery(String.format("SELECT * FROM %s", tableName));
+            ResultSetMetaData rsmt = rs.getMetaData();
+            DataSet[] result = new DataSet[size];
+            int index = 0;
+            while (rs.next()) {
+                DataSet dataSet = new DataSet();
+                result[index++] = dataSet;
+                for (int i = 1; i <= rsmt.getColumnCount(); i++) {
+                    dataSet.put(rsmt.getColumnName(i), rs.getObject(i));
+                }
             }
+            rs.close();
+            stmt.close();
+            return result;
+        }catch (SQLException e) {
+            e.printStackTrace();
+            return new DataSet[0];
         }
-        rs.close();
-        stmt.close();
-        return result;
     }
 
     private int getSize(String tableName) throws SQLException {
@@ -94,10 +99,15 @@ public class DatabaseManager {
         manager.connect(database, user, password);
         Connection connection = manager.getConnection();
 
+        //delete
+        manager.clear("users");
+
         //insert
-        Statement stmt = connection.createStatement();
-        stmt.executeUpdate(String.format("INSERT INTO users (name, password)VALUES ('Ivan', 'Budko')"));
-        stmt.close();
+        DataSet data = new DataSet();
+        data.put("id", 13);
+        data.put("name", "Ivan");
+        data.put("password", "pass");
+        manager.create(data);
 
         //select
         String[] tables = manager.getTableNames();
@@ -106,10 +116,6 @@ public class DatabaseManager {
         DataSet[] result = manager.getTableData(tableName);
         System.out.println(Arrays.toString(result));
 
-        //delete
-        stmt = connection.createStatement();
-        stmt.executeUpdate(String.format("DELETE FROM users WHERE id > 5 AND ID < 100"));
-        stmt.close();
 
         //update
         PreparedStatement ps = connection.prepareStatement(
@@ -119,10 +125,38 @@ public class DatabaseManager {
         ps.executeUpdate();
         ps.close();
 
-        ps.close();
-        stmt.close();
-
         connection.close();
     }
 
+    public void clear(String tableName) {
+        try{
+            Statement stmt = connection.createStatement();
+            stmt.executeUpdate(String.format("DELETE FROM " + tableName));
+            stmt.close();
+        }catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void create(DataSet input) {
+        try{
+            Statement stmt = connection.createStatement();
+            String tableNames = "";
+            for (String name : input.getNames()) {
+                tableNames += name + ",";
+            }
+            tableNames = tableNames.substring(0, tableNames.length() - 1);
+
+            String values = "";
+            for (Object value : input.getValues()) {
+                values += "'" + value.toString() + "'" + ",";
+            }
+            values = values.substring(0, values.length() - 1);
+
+            stmt.executeUpdate(String.format("INSERT INTO users (%s)VALUES (%s)", tableNames, values));
+            stmt.close();
+        }catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
 }
