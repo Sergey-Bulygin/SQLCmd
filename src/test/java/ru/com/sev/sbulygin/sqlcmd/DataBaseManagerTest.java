@@ -46,4 +46,22 @@ public class DataBaseManagerTest {
         assertEquals("[name, password, id]", Arrays.toString(users.getNames()));
         assertEquals("[Ivan, pass, 13]", Arrays.toString(users.getValues()));
     }
+
+    @Test
+    public void testUpdateTableData() {
+        manager.clear("users");
+        DataSet input = new DataSet();
+        input.put("id", 13);
+        input.put("name", "Ivan");
+        input.put("password", "pass");
+        manager.create(input);
+        DataSet newValue = new DataSet();
+        newValue.put("password", "passTwo");
+        manager.update("users",13, newValue);
+        DataSet[] user = manager.getTableData("users");
+        assertEquals(1, user.length);
+        DataSet users = user[0];
+        assertEquals("[name, password, id]", Arrays.toString(users.getNames()));
+        assertEquals("[Ivan, passTwo, 13]", Arrays.toString(users.getValues()));
+    }
 }

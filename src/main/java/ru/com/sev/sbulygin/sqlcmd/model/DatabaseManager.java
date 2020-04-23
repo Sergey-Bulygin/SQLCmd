@@ -2,7 +2,6 @@ package ru.com.sev.sbulygin.sqlcmd.model;
 
 import java.sql.*;
 import java.util.Arrays;
-import java.util.Random;
 
 /**
  * Class   Main
@@ -90,6 +89,64 @@ public class DatabaseManager {
         return size;
     }
 
+    public void clear(String tableName) {
+        try{
+            Statement stmt = connection.createStatement();
+            stmt.executeUpdate(String.format("DELETE FROM " + tableName));
+            stmt.close();
+        }catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void create(DataSet input) {
+        try{
+            Statement stmt = connection.createStatement();
+            String tableNames = getNamesFormated(input, "%s,");
+            String values = getValuesFormated(input, "'%s' ,");
+
+            stmt.executeUpdate(String.format("INSERT INTO users (%s)VALUES (%s)", tableNames, values));
+            stmt.close();
+        }catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private String getValuesFormated(DataSet input, String format) {
+        StringBuilder values = new StringBuilder();
+        for (Object value : input.getValues()) {
+            values.append(String.format(format, value));
+        }
+        values = new StringBuilder(values.substring(0, values.length() - 1));
+        return values.toString();
+    }
+
+    public void update(String tableName, int id, DataSet newValue) {
+        try{
+            String tableNames = getNamesFormated(newValue, "%s = ?,");
+            PreparedStatement ps = connection.prepareStatement(
+                    String.format("UPDATE %s SET %s WHERE id = ?", tableName, tableNames));
+            int index = 1;
+            for( Object value : newValue.getValues()) {
+            ps.setObject(index, value);
+            index++;
+            }
+            ps.setInt(index, id);
+            ps.executeUpdate();
+            ps.close();
+        }catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private String getNamesFormated(DataSet newValue, String format) {
+        StringBuilder string = new StringBuilder();
+        for (String name : newValue.getNames()) {
+            string.append(String.format(format, name));
+        }
+        string = new StringBuilder(string.substring(0, string.length() - 1));
+        return string.toString();
+    }
 
     public static void main(String[] args) throws SQLException, ClassNotFoundException {
         String database = "sqlcmd";
@@ -118,45 +175,6 @@ public class DatabaseManager {
 
 
         //update
-        PreparedStatement ps = connection.prepareStatement(
-                "UPDATE users SET password = ? WHERE id > 3");
-        String pass = "password_" + new Random().nextInt();
-        ps.setString(1, pass);
-        ps.executeUpdate();
-        ps.close();
-
         connection.close();
-    }
-
-    public void clear(String tableName) {
-        try{
-            Statement stmt = connection.createStatement();
-            stmt.executeUpdate(String.format("DELETE FROM " + tableName));
-            stmt.close();
-        }catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void create(DataSet input) {
-        try{
-            Statement stmt = connection.createStatement();
-            String tableNames = "";
-            for (String name : input.getNames()) {
-                tableNames += name + ",";
-            }
-            tableNames = tableNames.substring(0, tableNames.length() - 1);
-
-            String values = "";
-            for (Object value : input.getValues()) {
-                values += "'" + value.toString() + "'" + ",";
-            }
-            values = values.substring(0, values.length() - 1);
-
-            stmt.executeUpdate(String.format("INSERT INTO users (%s)VALUES (%s)", tableNames, values));
-            stmt.close();
-        }catch (SQLException e) {
-            e.printStackTrace();
-        }
     }
 }
