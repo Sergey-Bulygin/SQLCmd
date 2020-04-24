@@ -4,6 +4,7 @@ import org.junit.Before;
 import org.junit.Test;
 import ru.com.sev.sbulygin.sqlcmd.model.DataSet;
 import ru.com.sev.sbulygin.sqlcmd.model.DatabaseManager;
+import ru.com.sev.sbulygin.sqlcmd.model.JDBCDatabaseManager;
 
 import java.util.Arrays;
 
@@ -15,13 +16,13 @@ import static org.junit.Assert.assertEquals;
  * Project SQLCmd
  * Author  Sergey Bulygin
  */
-public class DataBaseManagerTest {
+public class JDBCDataBaseManagerTest {
 
     private DatabaseManager manager;
 
     @Before
     public void setup() {
-        manager = new DatabaseManager();
+        manager = new JDBCDatabaseManager();
         manager.connect("sqlcmd", "postgres", "bbfd50ago");
 
     }

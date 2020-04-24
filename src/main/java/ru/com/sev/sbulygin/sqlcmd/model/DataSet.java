@@ -10,6 +10,8 @@ import java.util.Arrays;
  */
 public class DataSet {
 
+
+
     static class Data {
         private String name;
         private Object value;
@@ -29,26 +31,42 @@ public class DataSet {
     }
 
     public Data[] data = new Data[100]; //TODO magic number 100.
-    public int index = 0;
+    public int position = 0;
 
     public void put(String name, Object value) {
-        data[index++] = new Data(name, value);
+        data[position++] = new Data(name, value);
     }
 
     public Object[] getValues(){
-        Object[] result = new Object[index];
-        for (int i = 0; i < index; i++) {
+        Object[] result = new Object[position];
+        for (int i = 0; i < position; i++) {
             result[i] = data[i].getValue();
         }
         return result;
     }
 
     public String[] getNames(){
-        String[] result = new String[index];
-        for (int i = 0; i < index; i++) {
+        String[] result = new String[position];
+        for (int i = 0; i < position; i++) {
             result[i] = data[i].getName();
         }
         return result;
+    }
+
+    public Object get(String name) {
+        for (int i = 0; i < position; i++) {
+            if (data[i].getName().equals(name)) {
+                return data[i].getValue();
+            }
+        }
+        return null;
+    }
+
+    public void updateFrom(DataSet newValue) {
+        for (int index = 0; index < newValue.position; index++) {
+            Data data = newValue.data[index];
+            this.put(data.name, data.value);
+        }
     }
 
     @Override
