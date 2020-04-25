@@ -34,6 +34,12 @@ public class DataSet {
     public int position = 0;
 
     public void put(String name, Object value) {
+        for (int index = 0; index < position; index++) {
+            if (data[index].getName().equals(name)) {
+            data[index].value = value;
+            return;
+            }
+        }
         data[position++] = new Data(name, value);
     }
 

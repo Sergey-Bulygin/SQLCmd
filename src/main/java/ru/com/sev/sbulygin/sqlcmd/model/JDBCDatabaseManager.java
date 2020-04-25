@@ -102,9 +102,9 @@ public class JDBCDatabaseManager implements DatabaseManager {
         try{
             Statement stmt = connection.createStatement();
             String tableNames = getNamesFormated(input, "%s,");
-            String values = getValuesFormated(input, "'%s' ,");
+            String values = getValuesFormated(input, "'%s',");
 
-            stmt.executeUpdate(String.format("INSERT INTO users (%s)VALUES (%s)", tableNames, values));
+            stmt.executeUpdate("INSERT INTO users (" + tableNames + ") VALUES (" + values + ")");
             stmt.close();
         }catch (SQLException e) {
             e.printStackTrace();

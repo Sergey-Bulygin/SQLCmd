@@ -4,6 +4,7 @@ import org.junit.Before;
 import org.junit.Test;
 import ru.com.sev.sbulygin.sqlcmd.model.DataSet;
 import ru.com.sev.sbulygin.sqlcmd.model.DatabaseManager;
+import ru.com.sev.sbulygin.sqlcmd.model.InMemoryDatabaseManager;
 import ru.com.sev.sbulygin.sqlcmd.model.JDBCDatabaseManager;
 
 import java.util.Arrays;
@@ -16,7 +17,7 @@ import static org.junit.Assert.assertEquals;
  * Project SQLCmd
  * Author  Sergey Bulygin
  */
-public class JDBCDataBaseManagerTest {
+public class JDBCDatabaseManagerTest {
 
     private DatabaseManager manager;
 
@@ -37,9 +38,9 @@ public class JDBCDataBaseManagerTest {
     public void testGetTableData() {
         manager.clear("users");
         DataSet input = new DataSet();
-        input.put("id", 13);
         input.put("name", "Ivan");
         input.put("password", "pass");
+        input.put("id", 13);
         manager.create(input);
         DataSet[] user = manager.getTableData("users");
         assertEquals(1, user.length);
@@ -52,9 +53,9 @@ public class JDBCDataBaseManagerTest {
     public void testUpdateTableData() {
         manager.clear("users");
         DataSet input = new DataSet();
-        input.put("id", 13);
         input.put("name", "Ivan");
         input.put("password", "pass");
+        input.put("id", 13);
         manager.create(input);
         DataSet newValue = new DataSet();
         newValue.put("password", "passTwo");
