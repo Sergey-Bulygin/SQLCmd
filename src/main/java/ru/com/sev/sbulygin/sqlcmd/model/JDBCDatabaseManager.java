@@ -98,13 +98,13 @@ public class JDBCDatabaseManager implements DatabaseManager {
     }
 
     @Override
-    public void create(DataSet input) {
+    public void create(String tableName, DataSet input) {
         try{
             Statement stmt = connection.createStatement();
             String tableNames = getNamesFormated(input, "%s,");
             String values = getValuesFormated(input, "'%s',");
 
-            stmt.executeUpdate("INSERT INTO users (" + tableNames + ") VALUES (" + values + ")");
+            stmt.executeUpdate("INSERT INTO " + tableName + " (" + tableNames + ") VALUES (" + values + ")");
             stmt.close();
         }catch (SQLException e) {
             e.printStackTrace();

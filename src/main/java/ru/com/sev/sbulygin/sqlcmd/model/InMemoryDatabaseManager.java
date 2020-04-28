@@ -16,7 +16,14 @@ public class InMemoryDatabaseManager implements DatabaseManager{
 
     @Override
     public DataSet[] getTableData(String tableName) {
+        validateTable(tableName);
         return Arrays.copyOf(data, position);
+    }
+
+    private void validateTable(String tableName) {
+        if (!"users".equals(tableName)) {
+            throw new UnsupportedOperationException("Only for 'users' table, but you try to work with: " + tableName);
+        }
     }
 
     @Override
@@ -31,12 +38,14 @@ public class InMemoryDatabaseManager implements DatabaseManager{
 
     @Override
     public void clear(String tableName) {
+        validateTable(tableName);
         data = new DataSet[1000];
         position = 0;
     }
 
     @Override
-    public void create(DataSet input) {
+    public void create(String tableName, DataSet input) {
+        validateTable(tableName);
         data[position] = input;
         position++;
     }

@@ -25,7 +25,6 @@ public class JDBCDatabaseManagerTest {
     public void setup() {
         manager = new JDBCDatabaseManager();
         manager.connect("sqlcmd", "postgres", "bbfd50ago");
-
     }
 
     @Test
@@ -41,7 +40,7 @@ public class JDBCDatabaseManagerTest {
         input.put("name", "Ivan");
         input.put("password", "pass");
         input.put("id", 13);
-        manager.create(input);
+        manager.create("users", input);
         DataSet[] user = manager.getTableData("users");
         assertEquals(1, user.length);
         DataSet users = user[0];
@@ -56,7 +55,7 @@ public class JDBCDatabaseManagerTest {
         input.put("name", "Ivan");
         input.put("password", "pass");
         input.put("id", 13);
-        manager.create(input);
+        manager.create("users", input);
         DataSet newValue = new DataSet();
         newValue.put("password", "passTwo");
         manager.update("users",13, newValue);
