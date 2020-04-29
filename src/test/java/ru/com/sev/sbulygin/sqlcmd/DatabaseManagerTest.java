@@ -4,8 +4,6 @@ import org.junit.Before;
 import org.junit.Test;
 import ru.com.sev.sbulygin.sqlcmd.model.DataSet;
 import ru.com.sev.sbulygin.sqlcmd.model.DatabaseManager;
-import ru.com.sev.sbulygin.sqlcmd.model.InMemoryDatabaseManager;
-import ru.com.sev.sbulygin.sqlcmd.model.JDBCDatabaseManager;
 
 import java.util.Arrays;
 
