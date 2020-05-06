@@ -26,24 +26,32 @@ public class MainController {
         view.write("Hello user!");
         view.write("Please enter the database name, username and password, in the format:");
         view.write("database|username|password");
-        String report = view.read();
-        String[] data = report.split("\\|");
-        String database = data[0];
-        String user = data[1];
-        String password = data[2];
         while (true) {
             try {
+                String report = view.read();
+                String[] data = report.split("\\|");
+                if (data.length < 3) {
+                    throw new IllegalArgumentException("Incorrect number of parameters separated by '|', expected 3, but there are: " + data.length);
+                }
+                String database = data[0];
+                String user = data[1];
+                String password = data[2];
                 manager.connect(database, user, password);
                 break;
             } catch (Exception e) {
-                String massage = e.getMessage();
-                if (e.getCause() != null) {
-                    massage += " " + e.getCause() + e.getMessage();
-                }
-                view.write("Error! Because of: " + massage);
-                view.write("Try again!");
+                printError(e);
             }
         }
         view.write("Complete!");
+    }
+
+    private void printError(Exception e) {
+        String massage = e.getMessage();
+        Throwable cause = e.getCause();
+        if (cause != null) {
+            massage += " " + e.getMessage();
+        }
+        view.write("Error! Because of: " + massage);
+        view.write("Try again!");
     }
 }

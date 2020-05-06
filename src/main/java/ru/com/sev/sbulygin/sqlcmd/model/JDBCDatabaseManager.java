@@ -73,16 +73,16 @@ public class JDBCDatabaseManager implements DatabaseManager {
         try {
             Class.forName("org.postgresql.Driver");
         } catch (ClassNotFoundException e) {
-            System.out.println("Please add jdbc jar to project.");
-            e.printStackTrace();
+            throw new RuntimeException("Please add jdbc jar to project.", e);
         }
         try {
             connection = DriverManager.getConnection(
                     "jdbc:postgresql://127.0.0.1:5432/" + database, user, password);
         } catch (SQLException e) {
-            System.out.println(String.format("Can't get connection for database:%s user:%s.", database, user));
-            e.printStackTrace();
             connection = null;
+            throw new RuntimeException(
+                    String.format("Cant get connection for model:%s user:%s",
+                            database, user), e);
         }
     }
 
