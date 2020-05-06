@@ -1,8 +1,6 @@
 package ru.com.sev.sbulygin.sqlcmd.controller;
 
 import ru.com.sev.sbulygin.sqlcmd.model.DatabaseManager;
-import ru.com.sev.sbulygin.sqlcmd.model.InMemoryDatabaseManager;
-import ru.com.sev.sbulygin.sqlcmd.view.Consol;
 import ru.com.sev.sbulygin.sqlcmd.view.View;
 
 /**
@@ -12,14 +10,22 @@ import ru.com.sev.sbulygin.sqlcmd.view.View;
  * Author  Sergey Bulygin
  */
 public class MainController {
-    public static void main(String[] args) {
-        View view = new Consol();
-        DatabaseManager manager = new InMemoryDatabaseManager();
 
+    private final View view;
+    private final DatabaseManager manager;
+
+    public MainController(View view, DatabaseManager manager) {
+        this.view = view;
+        this.manager = manager;
+    }
+    public void run() {
+        connectToDb();
+    }
+
+    private void connectToDb() {
         view.write("Hello user!");
         view.write("Please enter the database name, username and password, in the format:");
         view.write("database|username|password");
-
         String report = view.read();
         String[] data = report.split("\\|");
         String database = data[0];

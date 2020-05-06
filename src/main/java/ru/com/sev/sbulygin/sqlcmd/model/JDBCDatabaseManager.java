@@ -40,7 +40,7 @@ public class JDBCDatabaseManager implements DatabaseManager {
 
     private int getSize(String tableName) throws SQLException {
         Statement stmt = connection.createStatement();
-        ResultSet rsCount = stmt.executeQuery("SELECT COUNT(*) FROM public." + tableName);
+        ResultSet rsCount = stmt.executeQuery("SELECT COUNT(*) FROM " + tableName);
         rsCount.next();
         int size = rsCount.getInt(1);
         rsCount.close();
