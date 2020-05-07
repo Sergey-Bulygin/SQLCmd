@@ -3,6 +3,8 @@ package ru.com.sev.sbulygin.sqlcmd.controller;
 import ru.com.sev.sbulygin.sqlcmd.model.DatabaseManager;
 import ru.com.sev.sbulygin.sqlcmd.view.View;
 
+import java.util.Arrays;
+
 /**
  * Class   MainControler
  * Created 29/04/2020 - 12:45
@@ -18,8 +20,45 @@ public class MainController {
         this.view = view;
         this.manager = manager;
     }
+
     public void run() {
         connectToDb();
+        boolean menu = true;
+        while (menu) {
+            view.write("Enter a command (or help for reference): ");
+            String command = view.read();
+            switch (command) {
+                case "list":
+                    doList();
+                    break;
+                case "help":
+                    doHelp();
+                    break;
+                case "exit":
+                    view.write("Good luck.");
+                    menu = false;
+                    break;
+                default:
+                    view.write("Nonexistent command." + command);
+                    break;
+            }
+        }
+    }
+
+    private void doHelp() {
+        view.write("Existing teams: ");
+        view.write("\tlist");
+        view.write("\t\tGet a list of all database tables.");
+        view.write("\texit");
+        view.write("\t\tExit from the program.");
+        view.write("\thelp");
+        view.write("\t\tTo list help commands.");
+    }
+
+    private void doList() {
+        String[] tableNames = manager.getTableNames();
+        String massage = Arrays.toString(tableNames);
+        view.write(massage);
     }
 
     private void connectToDb() {
