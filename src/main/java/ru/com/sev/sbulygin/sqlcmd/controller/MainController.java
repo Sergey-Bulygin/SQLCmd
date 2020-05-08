@@ -1,5 +1,6 @@
 package ru.com.sev.sbulygin.sqlcmd.controller;
 
+import ru.com.sev.sbulygin.sqlcmd.model.DataSet;
 import ru.com.sev.sbulygin.sqlcmd.model.DatabaseManager;
 import ru.com.sev.sbulygin.sqlcmd.view.View;
 
@@ -27,28 +28,62 @@ public class MainController {
         while (menu) {
             view.write("Enter a command (or help for reference): ");
             String command = view.read();
-            switch (command) {
-                case "list":
-                    doList();
-                    break;
-                case "help":
-                    doHelp();
-                    break;
-                case "exit":
-                    view.write("Good luck.");
-                    menu = false;
-                    break;
-                default:
-                    view.write("Nonexistent command." + command);
-                    break;
+            if (command.equals("list")) {
+                doList();
+            }
+            if (command.startsWith("find|")) {
+                doFind(command);
+            }
+            if (command.equals("help")) {
+                doHelp();
+            }
+            if (command.equals("exit")) {
+                view.write("Good luck.");
+                menu = false;
+            } else {
+                view.write("Nonexistent command." + command);
             }
         }
+    }
+
+    private void doFind(String command) {
+        String[] data = command.split("\\|");
+        String tableName = data[1];
+        DataSet[] tableData = manager.getTableData(tableName);
+        printTable(tableData);
+    }
+
+    private void printTable(DataSet[] tableData) {
+        printHeader(tableData);
+        for (DataSet row : tableData) {
+            printRow(row);
+        }
+    }
+
+    private void printRow(DataSet row) {
+        Object[] values = row.getValues();
+        String result = "|";
+        for (Object value : values) {
+            result += value + "|";
+        }
+        view.write(result);
+    }
+
+    private void printHeader(DataSet[] tableData) {
+        String[] names = tableData[0].getNames();
+        String result = "|";
+        for (String name : names) {
+            result += name + "|";
+        }
+        view.write(result);
     }
 
     private void doHelp() {
         view.write("Existing teams: ");
         view.write("\tlist");
         view.write("\t\tGet a list of all database tables.");
+        view.write("\tfind|tableName");
+        view.write("\t\tTo retrieve table contents 'tableName'");
         view.write("\texit");
         view.write("\t\tExit from the program.");
         view.write("\thelp");
