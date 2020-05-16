@@ -49,12 +49,13 @@ public class MainController {
     private void doFind(String command) {
         String[] data = command.split("\\|");
         String tableName = data[1];
+        String[] tableColumns = manager.getTableColumns(tableName);
+        printHeader(tableColumns);
         DataSet[] tableData = manager.getTableData(tableName);
         printTable(tableData);
     }
 
     private void printTable(DataSet[] tableData) {
-        printHeader(tableData);
         for (DataSet row : tableData) {
             printRow(row);
         }
@@ -69,13 +70,15 @@ public class MainController {
         view.write(result);
     }
 
-    private void printHeader(DataSet[] tableData) {
-        String[] names = tableData[0].getNames();
+    private void printHeader(String[] tableColumns) {
         String result = "|";
-        for (String name : names) {
+        for (String name : tableColumns) {
             result += name + "|";
         }
+        view.write("_______________");
         view.write(result);
+        view.write("_______________");
+
     }
 
     private void doHelp() {
